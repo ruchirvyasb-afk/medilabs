@@ -1,0 +1,5 @@
+document.addEventListener('click',event=>{
+  if(event.target.id==='verifyField'){event.target.textContent='✓ Verified by reviewer';event.target.disabled=true;event.target.style.background='#27835e';document.querySelector('.notice p').innerHTML='<b>Extraction marked verified.</b> The audit trail now records this human review action.';document.querySelector('.notice').style.display='flex';}
+  if(event.target.id==='editField'){const dd=event.target.closest('#enhancementSlot').querySelectorAll('dd');dd[1].innerHTML='<input aria-label="Edit result" value="42 U/L">';event.target.textContent='Save edit';event.target.id='saveField';}
+  if(event.target.id==='saveField'){const input=event.target.closest('#enhancementSlot').querySelector('input');const altRow=[...document.querySelectorAll('#resultsBody tr')].find(r=>r.cells[0].innerText.includes('ALT'));if(altRow&&input)altRow.cells[1].innerHTML=`<span class="mono">${input.value}</span>`;event.target.textContent='✓ Edit saved';event.target.disabled=true;}
+});

@@ -1,0 +1,64 @@
+# Cloud Build → Cloud Run deployment pipeline
+# Usage: gcloud builds submit --config cloudbuild.yaml \
+#   --substitutions=_REGION=us-central1,_CLOUD_SQL_CONNECTION=PROJECT:REGION:INSTANCE
+
+substitutions:
+  _REGION: us-central1
+  _SERVICE_NAME: medlens-api
+  _CLOUD_SQL_CONNECTION: ''  # e.g. my-project:us-central1:medlens-db
+
+steps:
+  # 1. Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/medlens/${_SERVICE_NAME}:$COMMIT_SHA'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/medlens/${_SERVICE_NAME}:latest'
+      - '.'
+
+  # 2. Push to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - '--all-tags'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/medlens/${_SERVICE_NAME}'
+
+  # 3. Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_SERVICE_NAME}'
+      - '--image'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/medlens/${_SERVICE_NAME}:$COMMIT_SHA'
+      - '--region'
+      - '${_REGION}'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--port'
+      - '8080'
+      - '--memory'
+      - '512Mi'
+      - '--cpu'
+      - '1'
+      - '--min-instances'
+      - '0'
+      - '--max-instances'
+      - '10'
+      - '--add-cloudsql-instances'
+      - '${_CLOUD_SQL_CONNECTION}'
+      - '--set-env-vars'
+      - 'NODE_ENV=production,DB_DRIVER=postgres,DB_SSL=false'
+      - '--set-secrets'
+      - 'DATABASE_URL=medlens-database-url:latest,JWT_SECRET=medlens-jwt-secret:latest,DATA_ENCRYPTION_KEY=medlens-encryption-key:latest'
+
+images:
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/medlens/${_SERVICE_NAME}:$COMMIT_SHA'
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/medlens/${_SERVICE_NAME}:latest'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

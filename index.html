@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MedLens — Clinical Information Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="extra.css" />
+  <link rel="stylesheet" href="enhancements.css" />
+  <link rel="stylesheet" href="more-enhancements.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#"><span class="brand-mark"><i></i><i></i><i></i></span><span>med<span>lens</span></span></a>
+      <div class="workspace-label">WORKSPACE</div>
+      <nav>
+        <a class="nav-item active" href="#overview"><span class="icon">⌗</span>Overview</a>
+        <a class="nav-item" href="#timeline"><span class="icon">◷</span>Timeline</a>
+        <a class="nav-item" href="#documents"><span class="icon">▤</span>Documents <b>3</b></a>
+        <a class="nav-item" href="#insights"><span class="icon">✦</span>Insights <em>2</em></a>
+      </nav>
+      <div class="workspace-label lower">PATIENTS</div>
+      <div class="patient-mini selected"><div class="avatar coral">EM</div><div><strong>Elena Martinez</strong><small>Active record</small></div><span class="dot"></span></div>
+      <div class="patient-mini"><div class="avatar lavender">JR</div><div><strong>James Robertson</strong><small>Updated yesterday</small></div></div>
+      <button class="add-patient" id="newPatient">+ <span>New patient</span></button>
+      <div class="sidebar-footer"><div class="secure"><span>⌁</span><div><b>Private workspace</b><small>Local encrypted session</small></div></div><button class="user-chip">AR <span>⌄</span></button></div>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <div class="crumb"><span>Patients</span><b>/</b><strong>Elena Martinez</strong></div>
+        <div class="top-actions"><button class="icon-btn" aria-label="Search">⌕</button><button class="icon-btn notification" aria-label="Notifications">♧<i></i></button><button class="export-btn">⇩ Export record</button></div>
+      </header>
+
+      <section class="patient-header">
+        <div class="identity"><div class="large-avatar">EM</div><div><div class="eyebrow">PATIENT RECORD <span>•</span> ID ML-20841</div><h1>Elena Martinez <button class="edit-name" aria-label="Edit patient">✎</button></h1><p>38 years · Female · Last updated <strong>Today, 10:42 AM</strong></p></div></div>
+        <div class="status-actions"><span class="record-status"><i></i>Review ready</span><button class="secondary-btn" id="intakeBtn">+ Add information</button><button class="primary-btn" id="processBtn"><span>✦</span> Process report</button></div>
+      </section>
+
+      <section class="notice"><span class="notice-icon">✦</span><p><b>MedLens organizes information for review.</b> It does not diagnose conditions or recommend treatment. Verify all clinical information with a qualified professional.</p><button aria-label="Dismiss" id="dismissNotice">×</button></section>
+
+      <section class="stat-grid">
+        <article class="stat-card"><div class="stat-top"><span class="stat-label">REPORTS</span><span class="stat-icon teal">▤</span></div><strong>3</strong><p>2 lab results · 1 clinical note</p></article>
+        <article class="stat-card"><div class="stat-top"><span class="stat-label">OBSERVATIONS</span><span class="stat-icon purple">⌁</span></div><strong>12</strong><p>10 in range · <b>2 need review</b></p></article>
+        <article class="stat-card"><div class="stat-top"><span class="stat-label">ACTIVE MEDS</span><span class="stat-icon amber">✚</span></div><strong>2</strong><p>Patient-provided · verify status</p></article>
+        <article class="stat-card focus"><div class="stat-top"><span class="stat-label">REVIEW STATUS</span><span class="stat-icon green">✓</span></div><strong>Ready</strong><p>2 items flagged for attention</p></article>
+      </section>
+
+      <div class="content-grid">
+        <div class="left-column">
+          <section class="panel summary-panel" id="overview"><div class="panel-heading"><div><span class="overline">AI-GENERATED · REVIEW WITH CARE</span><h2>At a glance</h2></div><button class="small-action">↻ Refresh summary</button></div><div class="summary-body"><div class="summary-star">✦</div><p>Elena’s record includes a recent comprehensive metabolic panel and lipid panel from <b>Sep 03, 2026.</b> Most reported results fall within the source-provided reference ranges. <mark>LDL cholesterol and ALT are marked above range</mark> in the report and may be useful to discuss during a routine clinical review. She reports seasonal pollen allergy and currently lists two medications.</p></div><div class="summary-meta"><span>Generated from 3 sources</span><span>·</span><span>Last generated today, 10:42 AM</span><button>View source basis →</button></div></section>
+
+          <section class="panel observations-panel"><div class="panel-heading"><div><span class="overline">EXTRACTED FROM REPORTS</span><h2>Recent observations</h2></div><div class="heading-actions"><button class="filter-btn">All results <span>⌄</span></button><button class="text-btn">View all 12 →</button></div></div><div class="table-wrap"><table><thead><tr><th>TEST</th><th>RESULT</th><th>REFERENCE RANGE</th><th>STATUS</th><th>SOURCE</th></tr></thead><tbody id="resultsBody">
+            <tr><td><strong>Total Cholesterol</strong><small>Lipid Panel</small></td><td class="mono">186 <span>mg/dL</span></td><td class="mono muted">&lt; 200 mg/dL</td><td><span class="pill normal">● Normal</span></td><td><button class="source-link">Lab report <span>↗</span></button></td></tr>
+            <tr><td><strong>LDL Cholesterol</strong><small>Lipid Panel</small></td><td class="mono high-value">118 <span>mg/dL</span></td><td class="mono muted">&lt; 100 mg/dL</td><td><span class="pill high">↑ High</span></td><td><button class="source-link">Lab report <span>↗</span></button></td></tr>
+            <tr><td><strong>ALT (SGPT)</strong><small>Metabolic Panel</small></td><td class="mono high-value">42 <span>U/L</span></td><td class="mono muted">7 – 35 U/L</td><td><span class="pill high">↑ High</span></td><td><button class="source-link">Lab report <span>↗</span></button></td></tr>
+            <tr><td><strong>Glucose, fasting</strong><small>Metabolic Panel</small></td><td class="mono">92 <span>mg/dL</span></td><td class="mono muted">70 – 99 mg/dL</td><td><span class="pill normal">● Normal</span></td><td><button class="source-link">Lab report <span>↗</span></button></td></tr>
+          </tbody></table></div><div class="table-foot"><span><i></i> Values are classified only using ranges shown in the source report.</span><button id="comparisonBtn">Open report comparison →</button></div></section>
+          <section class="panel review-panel"><div class="panel-heading"><div><span class="overline">REVIEW QUEUE · AI-ASSISTED</span><h2>Items that need human review</h2></div><span class="review-count">2 open</span></div><div class="review-list"><article><span class="issue-icon">!</span><div><strong>Possible medication conflict</strong><p>Levothyroxine is listed as active; the clinical note also mentions a discontinued thyroid medication. Confirm the current regimen.</p><small>Detected from 2 sources · Not a clinical determination</small></div><button class="review-btn">Review</button></article><article><span class="issue-icon neutral">?</span><div><strong>Clarification suggested</strong><p>The report does not include a reference range for Vitamin D. Add or confirm a source range before classification.</p><small>Source gap · No range was invented</small></div><button class="review-btn">Ask patient</button></article></div></section>
+        </div>
+        <aside class="right-column">
+          <section class="panel profile-card"><div class="panel-heading"><div><span class="overline">PATIENT-PROVIDED</span><h2>Health profile</h2></div><button class="more">•••</button></div><div class="profile-section"><span>REPORTED SYMPTOMS</span><div class="tags" id="symptomTags"><b>Occasional fatigue</b><b>Headaches</b></div></div><div class="profile-section"><span>EXISTING CONDITIONS</span><div class="empty-profile" id="conditionsValue">No conditions added</div></div><div class="profile-section alert-section"><span>ALLERGIES</span><div class="allergy" id="allergyValue"><i>!</i><div><strong>Seasonal pollen</strong><small>Patient-provided</small></div></div></div><button class="edit-profile" id="editProfile">Edit health profile <span>→</span></button></section>
+          <section class="panel meds-card"><div class="panel-heading"><div><span class="overline">PATIENT-PROVIDED</span><h2>Current medications</h2></div><button class="add-small">+</button></div><div class="med"><div class="med-icon">Rx</div><div><strong>Levothyroxine</strong><small>50 mcg · Once daily</small></div><span>Active</span></div><div class="med"><div class="med-icon">Rx</div><div><strong>Vitamin D3</strong><small>1,000 IU · Once daily</small></div><span>Active</span></div><button class="see-medications">View medications <span>→</span></button></section>
+          <section class="access-card"><span class="overline">ACCESS CONTROL · PROTOTYPE</span><div><span class="access-icon">♙</span><p><b>Dr. Arun Rao</b><br><small>Clinical reviewer · edit access</small></p></div><button id="lockSession">Lock session</button></section>
+          <section class="audit"><span>◷</span><p><b>Record activity</b><br>Report processed 18 minutes ago</p><button id="timelineBtn">View timeline →</button></section>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="modal"><div class="modal"><button class="modal-close" id="closeModal">×</button><span class="overline" id="modalOverline">PATIENT-PROVIDED</span><h2 id="modalTitle">Add patient information</h2><p id="modalText">Add details to the patient-provided record. These will always remain distinct from extracted report data.</p><div id="reportForm" class="hidden"><label>Report date <input id="reportDate" type="date" value="2026-09-05"></label><label class="report-text">Paste report text <textarea id="reportText" placeholder="Example: Hemoglobin: 11.2 g/dL (12.0 - 15.5)\nGlucose: 92 mg/dL (70 - 99)"></textarea></label><div class="source-rule">✦ MedLens only classifies a value when its source text includes a reference range. Missing ranges remain <b>Unclassified</b>.</div><button class="primary-btn form-submit" id="extractBtn" type="button">Extract structured results →</button></div><form id="intakeForm"><div class="form-row"><label>Age<input id="patientAge" type="number" placeholder="e.g. 38"></label><label>Sex<select id="patientSex"><option value="">Select</option><option>Female</option><option>Male</option><option>Intersex</option><option>Prefer not to say</option></select></label></div><label>Symptoms or notes<textarea id="patientSymptoms" placeholder="e.g. fatigue for 2 weeks, occasional headaches"></textarea></label><div class="form-row"><label>Existing conditions<input id="patientConditions" placeholder="e.g. hypothyroidism"></label><label>Allergies<input id="patientAllergies" placeholder="e.g. seasonal pollen"></label></div><label>Medication(s)<input id="patientMeds" placeholder="e.g. medicine, dose, frequency"></label><button class="primary-btn form-submit" type="submit">Save patient-provided information →</button></form></div></div>
+  <script src="app.js"></script>
+  <script src="summary.js"></script>
+  <script src="enhancements.js"></script>
+  <script src="more-enhancements.js"></script>
+  <script src="verifier.js"></script>
+</body>
+</html>

@@ -1,13 +1,24 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
+import rateLimit from 'express-rate-limit';
 import db from '../db/index.js';
 import { auth, sign } from '../middleware/auth.js';
 import { credentials } from '../validators/schemas.js';
 
 const router = Router();
 
+// Brute-force protection for credential-guessing endpoints only — not /me,
+// which every page load calls just to check an existing session.
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many attempts. Please wait a few minutes and try again.' },
+});
+
 /** POST /api/auth/login */
-router.post('/login', async (req, res, next) => {
+router.post('/login', authLimiter, async (req, res, next) => {
   try {
     const input = credentials.parse(req.body);
     const { rows } = await db.query(
@@ -34,7 +45,7 @@ router.post('/login', async (req, res, next) => {
 });
 
 /** POST /api/auth/register — public sign-up, always creates a 'customer' account */
-router.post('/register', async (req, res, next) => {
+router.post('/register', authLimiter, async (req, res, next) => {
   try {
     const input = credentials.parse(req.body);
     const email = input.email.toLowerCase();

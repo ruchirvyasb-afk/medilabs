@@ -4,7 +4,6 @@ import { dirname, resolve } from 'node:path';
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
-import rateLimit from 'express-rate-limit';
 import config from './config.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import authRoutes from './routes/auth.js';
@@ -35,17 +34,6 @@ app.use(
     index: false,
     dotfiles: 'deny',
     maxAge: !config.isDev ? '1h' : 0,
-  }),
-);
-
-// Rate-limit auth endpoints
-app.use(
-  '/api/auth',
-  rateLimit({
-    windowMs: 15 * 60 * 1000,
-    limit: 10,
-    standardHeaders: true,
-    legacyHeaders: false,
   }),
 );
 

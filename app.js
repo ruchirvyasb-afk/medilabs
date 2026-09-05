@@ -34,8 +34,17 @@ ML.api = async function api(path, options = {}) {
     throw new Error('Session expired. Please sign in again.');
   }
 
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Request failed.');
+  const rawText = await res.text();
+  let data = {};
+  try {
+    data = rawText ? JSON.parse(rawText) : {};
+  } catch {
+    // Non-JSON error body (e.g. a proxy/rate-limit page) — fall back to
+    // status text so the user sees something more useful than "Request failed".
+  }
+  if (!res.ok) {
+    throw new Error(data.error || (rawText && rawText.length < 200 ? rawText : `Request failed (${res.status}).`));
+  }
   return data;
 };
 

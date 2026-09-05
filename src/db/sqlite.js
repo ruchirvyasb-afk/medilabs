@@ -35,8 +35,10 @@ function save() {
   writeFileSync(dbPath, buffer);
 }
 
-// Auto-save every 5 seconds and on process exit
-const saveInterval = setInterval(save, 5000);
+// Auto-save every 5 seconds and on process exit. unref() so this timer alone
+// never keeps the process alive — the listening server does that in
+// production; in tests/scripts, the process can exit once real work is done.
+const saveInterval = setInterval(save, 5000).unref();
 process.on('exit', () => { clearInterval(saveInterval); try { save(); } catch {} });
 process.on('SIGINT', () => { save(); process.exit(0); });
 process.on('SIGTERM', () => { save(); process.exit(0); });

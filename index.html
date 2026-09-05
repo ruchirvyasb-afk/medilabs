@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="more-enhancements.css" />
 </head>
 <body>
+  <a href="#appMain" class="skip-link">Skip to main content</a>
   <div class="auth-backdrop" id="authScreen">
     <div class="auth-card">
       <div class="brand"><span class="brand-mark"><i></i><i></i><i></i></span><span>med<span>lens</span></span></div>
@@ -21,7 +22,7 @@
         <p class="auth-sub">Sign in to your clinical workspace.</p>
         <label>Email<input id="loginEmail" type="email" autocomplete="username" required></label>
         <label>Password<input id="loginPassword" type="password" autocomplete="current-password" required></label>
-        <p class="auth-error hidden" id="loginError"></p>
+        <p class="auth-error hidden" id="loginError" role="alert"></p>
         <button class="primary-btn form-submit" type="submit">Sign in →</button>
       </form>
 
@@ -30,7 +31,7 @@
         <label>Email<input id="signupEmail" type="email" autocomplete="username" required></label>
         <label>Password (min 12 characters)<input id="signupPassword" type="password" autocomplete="new-password" minlength="12" required></label>
         <label>Confirm password<input id="signupConfirmPassword" type="password" autocomplete="new-password" minlength="12" required></label>
-        <p class="auth-error hidden" id="signupError"></p>
+        <p class="auth-error hidden" id="signupError" role="alert"></p>
         <button class="primary-btn form-submit" type="submit">Create account →</button>
       </form>
 
@@ -39,7 +40,7 @@
   </div>
 
   <div class="app-shell hidden" id="appShell">
-    <aside class="sidebar">
+    <aside class="sidebar" aria-label="Workspace navigation">
       <a class="brand" href="#"><span class="brand-mark"><i></i><i></i><i></i></span><span>med<span>lens</span></span></a>
       <div class="workspace-label">WORKSPACE</div>
       <nav>
@@ -48,16 +49,16 @@
         <a class="nav-item" href="#documents"><span class="icon">▤</span>Documents</a>
         <a class="nav-item" href="#insights"><span class="icon">✦</span>Insights</a>
       </nav>
-      <div class="workspace-label lower">PATIENTS</div>
-      <div id="patientList"></div>
+      <div class="workspace-label lower" id="patientListLabel">PATIENTS</div>
+      <div id="patientList" role="list" aria-labelledby="patientListLabel"></div>
       <button class="add-patient" id="newPatient">+ <span>New patient</span></button>
       <div class="sidebar-footer">
-        <div class="secure"><span>⌁</span><div><b>Private workspace</b><small>Encrypted at rest</small></div></div>
-        <button class="user-chip" id="userChip">— <span>⌄</span></button>
+        <div class="secure"><span aria-hidden="true">⌁</span><div><b>Private workspace</b><small>Encrypted at rest</small></div></div>
+        <button class="user-chip" id="userChip" aria-label="Account menu, click to sign out">— <span aria-hidden="true">⌄</span></button>
       </div>
     </aside>
 
-    <main>
+    <main id="appMain">
       <header class="topbar">
         <div class="crumb"><span>Patients</span><b>/</b><strong id="crumbPatientName">No patient selected</strong></div>
         <div class="top-actions"><button class="icon-btn" aria-label="Search">⌕</button><button class="icon-btn notification" aria-label="Notifications">♧</button><button class="export-btn" id="exportBtn">⇩ Export record</button></div>
@@ -73,7 +74,7 @@
           <div class="status-actions"><span class="record-status"><i></i>Review ready</span><button class="secondary-btn" id="intakeBtn">+ Add information</button><button class="primary-btn" id="processBtn"><span>✦</span> Process report</button></div>
         </section>
 
-        <section class="notice hidden" id="notice"><span class="notice-icon">✦</span><p id="noticeText"></p><button aria-label="Dismiss" id="dismissNotice">×</button></section>
+        <section class="notice hidden" id="notice" role="status"><span class="notice-icon" aria-hidden="true">✦</span><p id="noticeText"></p><button aria-label="Dismiss notification" id="dismissNotice">×</button></section>
 
         <section class="stat-grid">
           <article class="stat-card"><div class="stat-top"><span class="stat-label">REPORTS</span><span class="stat-icon teal">▤</span></div><strong id="statReports">0</strong><p id="statReportsSub">No reports yet</p></article>
@@ -86,7 +87,7 @@
           <div class="left-column">
             <section class="panel summary-panel" id="overview"><div class="panel-heading"><div><span class="overline">AI-GENERATED · REVIEW WITH CARE</span><h2>At a glance</h2></div><button class="small-action" id="refreshSummaryBtn">↻ Refresh summary</button></div><div class="summary-body"><div class="summary-star">✦</div><p id="summaryText">No summary yet. Process a report to generate one.</p></div><div class="summary-meta"><span id="summaryMeta"></span></div></section>
 
-            <section class="panel observations-panel"><div class="panel-heading"><div><span class="overline">EXTRACTED FROM REPORTS</span><h2>Recent observations</h2></div><div class="heading-actions"></div></div><div class="table-wrap"><table><thead><tr><th>TEST</th><th>RESULT</th><th>REFERENCE RANGE</th><th>STATUS</th><th>SOURCE</th></tr></thead><tbody id="resultsBody"></tbody></table></div><div class="table-foot"><span><i></i> Values are classified only using ranges shown in the source report.</span></div></section>
+            <section class="panel observations-panel"><div class="panel-heading"><div><span class="overline">EXTRACTED FROM REPORTS</span><h2>Recent observations</h2></div><div class="heading-actions"></div></div><div class="table-wrap"><table><caption class="sr-only">Recent lab observations extracted from reports</caption><thead><tr><th scope="col">TEST</th><th scope="col">RESULT</th><th scope="col">REFERENCE RANGE</th><th scope="col">STATUS</th><th scope="col">SOURCE</th></tr></thead><tbody id="resultsBody"></tbody></table></div><div class="table-foot"><span><i></i> Values are classified only using ranges shown in the source report.</span></div></section>
 
             <section class="panel review-panel"><div class="panel-heading"><div><span class="overline">REVIEW QUEUE · AI-ASSISTED</span><h2>Items that need human review</h2></div><span class="review-count" id="reviewCount">0 open</span></div><div class="review-list" id="reviewList"></div></section>
           </div>
@@ -101,7 +102,7 @@
     </main>
   </div>
 
-  <div class="modal-backdrop" id="modal"><div class="modal"><button class="modal-close" id="closeModal">×</button><span class="overline" id="modalOverline">PATIENT-PROVIDED</span><h2 id="modalTitle">Add patient information</h2><p id="modalText">Add details to the patient-provided record. These will always remain distinct from extracted report data.</p><div id="reportForm" class="hidden"><label>Report date <input id="reportDate" type="date"></label><label class="report-text">Paste report text <textarea id="reportText" placeholder="Example: Hemoglobin: 11.2 g/dL (12.0 - 15.5)&#10;Glucose: 92 mg/dL (70 - 99)"></textarea></label><div class="source-rule">✦ MedLens only classifies a value when its source text includes a reference range. Missing ranges remain <b>Unclassified</b>.</div><p class="auth-error hidden" id="reportError"></p><button class="primary-btn form-submit" id="extractBtn" type="button">Extract structured results →</button></div><form id="intakeForm"><label>Full name<input id="patientFullName" placeholder="e.g. Jane Doe"></label><div class="form-row"><label>Age<input id="patientAge" type="number" placeholder="e.g. 38"></label><label>Sex<select id="patientSex"><option value="">Select</option><option>Female</option><option>Male</option><option>Intersex</option><option>Prefer not to say</option></select></label></div><label>Symptoms or notes (comma separated)<textarea id="patientSymptoms" placeholder="e.g. fatigue, occasional headaches"></textarea></label><div class="form-row"><label>Existing conditions (comma separated)<input id="patientConditions" placeholder="e.g. hypothyroidism"></label><label>Allergies (comma separated)<input id="patientAllergies" placeholder="e.g. seasonal pollen"></label></div><label>Medication(s) — one per line: name, dose, frequency<textarea id="patientMeds" placeholder="e.g. Levothyroxine, 50 mcg, Once daily"></textarea></label><p class="auth-error hidden" id="intakeError"></p><button class="primary-btn form-submit" type="submit">Save information →</button></form></div></div>
+  <div class="modal-backdrop" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal"><button class="modal-close" id="closeModal" aria-label="Close dialog">×</button><span class="overline" id="modalOverline">PATIENT-PROVIDED</span><h2 id="modalTitle">Add patient information</h2><p id="modalText">Add details to the patient-provided record. These will always remain distinct from extracted report data.</p><div id="reportForm" class="hidden"><label>Report date <input id="reportDate" type="date"></label><label class="report-text">Paste report text <textarea id="reportText" placeholder="Example: Hemoglobin: 11.2 g/dL (12.0 - 15.5)&#10;Glucose: 92 mg/dL (70 - 99)"></textarea></label><div class="source-rule">✦ MedLens only classifies a value when its source text includes a reference range. Missing ranges remain <b>Unclassified</b>.</div><p class="auth-error hidden" id="reportError" role="alert"></p><button class="primary-btn form-submit" id="extractBtn" type="button">Extract structured results →</button></div><form id="intakeForm"><label>Full name<input id="patientFullName" placeholder="e.g. Jane Doe"></label><div class="form-row"><label>Age<input id="patientAge" type="number" placeholder="e.g. 38"></label><label>Sex<select id="patientSex"><option value="">Select</option><option>Female</option><option>Male</option><option>Intersex</option><option>Prefer not to say</option></select></label></div><label>Symptoms or notes (comma separated)<textarea id="patientSymptoms" placeholder="e.g. fatigue, occasional headaches"></textarea></label><div class="form-row"><label>Existing conditions (comma separated)<input id="patientConditions" placeholder="e.g. hypothyroidism"></label><label>Allergies (comma separated)<input id="patientAllergies" placeholder="e.g. seasonal pollen"></label></div><label>Medication(s) — one per line: name, dose, frequency<textarea id="patientMeds" placeholder="e.g. Levothyroxine, 50 mcg, Once daily"></textarea></label><p class="auth-error hidden" id="intakeError" role="alert"></p><button class="primary-btn form-submit" type="submit">Save information →</button></form></div></div>
   <script src="app.js"></script>
   <script src="summary.js"></script>
   <script src="enhancements.js"></script>

@@ -182,7 +182,8 @@ function renderPatientList() {
     .map((p) => {
       const initials = (p.profile.fullName || '?').split(/\s+/).map((x) => x[0]).slice(0, 2).join('').toUpperCase();
       const selected = p.id === ML.state.selectedPatientId ? 'selected' : '';
-      return `<div class="patient-mini ${selected}" data-id="${p.id}"><div class="avatar lavender">${ML.safe(initials)}</div><div><strong>${ML.safe(p.profile.fullName || 'Unnamed patient')}</strong><small>Updated ${new Date(p.createdAt).toLocaleDateString()}</small></div>${selected ? '<span class="dot"></span>' : ''}</div>`;
+      const name = ML.safe(p.profile.fullName || 'Unnamed patient');
+      return `<button type="button" class="patient-mini ${selected}" data-id="${p.id}" role="listitem" aria-current="${selected ? 'true' : 'false'}"><div class="avatar lavender" aria-hidden="true">${ML.safe(initials)}</div><div><strong>${name}</strong><small>Updated ${new Date(p.createdAt).toLocaleDateString()}</small></div>${selected ? '<span class="dot" aria-hidden="true"></span>' : ''}</button>`;
     })
     .join('');
   container.querySelectorAll('.patient-mini').forEach((el) => {
@@ -311,7 +312,10 @@ const descEl = document.getElementById('modalText');
 const reportForm = document.getElementById('reportForm');
 const intakeForm = document.getElementById('intakeForm');
 
+let lastFocusedEl = null;
+
 function openModal(kind, mode) {
+  lastFocusedEl = document.activeElement;
   modalMode = kind === 'report' ? 'report' : mode;
   modal.classList.add('open');
   const isReport = kind === 'report';
@@ -340,13 +344,36 @@ function openModal(kind, mode) {
     document.getElementById('patientAllergies').value = (p.allergies || []).join(', ');
     document.getElementById('patientMeds').value = (p.medications || []).map((m) => [m.name, m.dose, m.frequency].filter(Boolean).join(', ')).join('\n');
   }
+
+  setTimeout(() => {
+    const firstField = modal.querySelector('.modal input, .modal textarea, .modal select, .modal button');
+    (firstField || modal.querySelector('.modal')).focus();
+  }, 0);
 }
 
 function closeModal() {
   modal.classList.remove('open');
   document.getElementById('intakeError').classList.add('hidden');
   document.getElementById('reportError').classList.add('hidden');
+  if (lastFocusedEl && document.contains(lastFocusedEl)) lastFocusedEl.focus();
 }
+
+modal.addEventListener('keydown', (e) => {
+  if (!modal.classList.contains('open')) return;
+  if (e.key === 'Escape') return closeModal();
+  if (e.key !== 'Tab') return;
+  const focusable = [...modal.querySelectorAll('.modal button, .modal input, .modal textarea, .modal select, .modal a[href]')].filter((el) => !el.disabled && el.offsetParent !== null);
+  if (!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
+});
 
 document.getElementById('intakeBtn').addEventListener('click', () => openModal('intake', 'edit'));
 document.getElementById('editProfileBtn').addEventListener('click', () => openModal('intake', 'edit'));

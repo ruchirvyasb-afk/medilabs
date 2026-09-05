@@ -15,6 +15,7 @@ ML.safe = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<'
 
 /** Fetch wrapper — attaches the bearer token and throws a readable error on failure. */
 ML.api = async function api(path, options = {}) {
+  const hadToken = Boolean(ML.state.token);
   const res = await fetch(`/api${path}`, {
     ...options,
     headers: {
@@ -25,7 +26,10 @@ ML.api = async function api(path, options = {}) {
     body: options.body ? JSON.stringify(options.body) : undefined,
   });
 
-  if (res.status === 401) {
+  // A 401 only means "your session expired" when a token was actually sent.
+  // Login/register calls send no token, so their 401s are just wrong
+  // credentials / duplicate email and should surface as normal errors.
+  if (res.status === 401 && hadToken) {
     ML.logout();
     throw new Error('Session expired. Please sign in again.');
   }
@@ -99,6 +103,38 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 
 document.getElementById('userChip').addEventListener('click', () => {
   if (confirm('Sign out of MedLens?')) ML.logout();
+});
+
+document.getElementById('authToggle').addEventListener('click', () => {
+  const showingSignup = document.getElementById('signupForm').classList.toggle('hidden') === false;
+  document.getElementById('loginForm').classList.toggle('hidden', showingSignup);
+  document.getElementById('authToggle').textContent = showingSignup ? 'Already have an account? Sign in' : 'New here? Create an account';
+});
+
+document.getElementById('signupForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const errorEl = document.getElementById('signupError');
+  errorEl.classList.add('hidden');
+
+  const password = document.getElementById('signupPassword').value;
+  const confirmPassword = document.getElementById('signupConfirmPassword').value;
+  if (password !== confirmPassword) {
+    errorEl.textContent = 'Passwords do not match.';
+    errorEl.classList.remove('hidden');
+    return;
+  }
+
+  try {
+    const { token, user } = await ML.api('/auth/register', {
+      method: 'POST',
+      body: { email: document.getElementById('signupEmail').value.trim(), password },
+    });
+    setSession(token, user);
+    await boot();
+  } catch (err) {
+    errorEl.textContent = err.message;
+    errorEl.classList.remove('hidden');
+  }
 });
 
 // ── Patients ─────────────────────────────────────────

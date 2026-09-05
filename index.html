@@ -14,14 +14,28 @@
 </head>
 <body>
   <div class="auth-backdrop" id="authScreen">
-    <form class="auth-card" id="loginForm">
+    <div class="auth-card">
       <div class="brand"><span class="brand-mark"><i></i><i></i><i></i></span><span>med<span>lens</span></span></div>
-      <p class="auth-sub">Sign in to your clinical workspace.</p>
-      <label>Email<input id="loginEmail" type="email" autocomplete="username" required></label>
-      <label>Password<input id="loginPassword" type="password" autocomplete="current-password" required></label>
-      <p class="auth-error hidden" id="loginError"></p>
-      <button class="primary-btn form-submit" type="submit">Sign in →</button>
-    </form>
+
+      <form id="loginForm">
+        <p class="auth-sub">Sign in to your clinical workspace.</p>
+        <label>Email<input id="loginEmail" type="email" autocomplete="username" required></label>
+        <label>Password<input id="loginPassword" type="password" autocomplete="current-password" required></label>
+        <p class="auth-error hidden" id="loginError"></p>
+        <button class="primary-btn form-submit" type="submit">Sign in →</button>
+      </form>
+
+      <form id="signupForm" class="hidden">
+        <p class="auth-sub">Create a customer account.</p>
+        <label>Email<input id="signupEmail" type="email" autocomplete="username" required></label>
+        <label>Password (min 12 characters)<input id="signupPassword" type="password" autocomplete="new-password" minlength="12" required></label>
+        <label>Confirm password<input id="signupConfirmPassword" type="password" autocomplete="new-password" minlength="12" required></label>
+        <p class="auth-error hidden" id="signupError"></p>
+        <button class="primary-btn form-submit" type="submit">Create account →</button>
+      </form>
+
+      <button type="button" class="auth-toggle" id="authToggle">New here? Create an account</button>
+    </div>
   </div>
 
   <div class="app-shell hidden" id="appShell">

@@ -1,5 +1,17 @@
-document.addEventListener('click',event=>{
-  if(event.target.id==='verifyField'){event.target.textContent='✓ Verified by reviewer';event.target.disabled=true;event.target.style.background='#27835e';document.querySelector('.notice p').innerHTML='<b>Extraction marked verified.</b> The audit trail now records this human review action.';document.querySelector('.notice').style.display='flex';}
-  if(event.target.id==='editField'){const dd=event.target.closest('#enhancementSlot').querySelectorAll('dd');dd[1].innerHTML='<input aria-label="Edit result" value="42 U/L">';event.target.textContent='Save edit';event.target.id='saveField';}
-  if(event.target.id==='saveField'){const input=event.target.closest('#enhancementSlot').querySelector('input');const altRow=[...document.querySelectorAll('#resultsBody tr')].find(r=>r.cells[0].innerText.includes('ALT'));if(altRow&&input)altRow.cells[1].innerHTML=`<span class="mono">${input.value}</span>`;event.target.textContent='✓ Edit saved';event.target.disabled=true;}
+// Clinician verification — backed by PATCH /api/observations/:id/verify.
+ML.verifyObservation = async function verifyObservation(observationId) {
+  try {
+    await ML.api(`/observations/${observationId}/verify`, { method: 'PATCH' });
+    await ML.selectPatient(ML.state.selectedPatientId);
+    ML.showNotice('<b>Observation marked verified.</b> The audit trail now records this review action.');
+  } catch (err) {
+    ML.showNotice(`<b>Could not verify observation.</b> ${ML.safe(err.message)}`);
+  }
+};
+
+document.addEventListener('click', (event) => {
+  if (event.target.id === 'verifyField') {
+    ML.verifyObservation(event.target.dataset.obsId);
+    document.getElementById('closeModal').click();
+  }
 });

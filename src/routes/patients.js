@@ -5,7 +5,7 @@ import { allow } from '../middleware/authorize.js';
 import { encrypt, decrypt } from '../services/crypto.js';
 import { parseReport } from '../services/parser.js';
 import { safeSummary } from '../services/summary.js';
-import { createPatient, processReport } from '../validators/schemas.js';
+import { createPatient, processReport, updatePatientProfile } from '../validators/schemas.js';
 
 const router = Router();
 
@@ -30,6 +30,28 @@ async function audit(patientId, actorId, action, metadata = {}) {
 }
 
 // ── Routes ───────────────────────────────────────────
+
+/** GET /api/patients — list patients visible to the current user */
+router.get('/', auth, async (req, res, next) => {
+  try {
+    const isPrivileged = req.user.role === 'admin' || req.user.role === 'clinician';
+    const { rows } = await db.query(
+      isPrivileged
+        ? 'SELECT id, encrypted_profile, created_at FROM patients ORDER BY created_at DESC'
+        : 'SELECT id, encrypted_profile, created_at FROM patients WHERE owner_user_id=$1 ORDER BY created_at DESC',
+      isPrivileged ? [] : [req.user.sub],
+    );
+    res.json({
+      patients: rows.map((row) => ({
+        id: row.id,
+        createdAt: row.created_at,
+        profile: decrypt(row.encrypted_profile),
+      })),
+    });
+  } catch (e) {
+    next(e);
+  }
+});
 
 /** POST /api/patients — create a patient record */
 router.post('/', auth, allow('admin', 'clinician'), async (req, res, next) => {
@@ -89,6 +111,59 @@ router.get('/:patientId', auth, async (req, res, next) => {
         ? decrypt(summary.rows[0].encrypted_summary)
         : null,
     });
+  } catch (e) {
+    next(e);
+  }
+});
+
+/** PATCH /api/patients/:patientId — update patient-provided profile fields */
+router.patch('/:patientId', auth, async (req, res, next) => {
+  try {
+    const patient = await canAccess(req.params.patientId, req.user);
+    if (!patient) return res.status(404).json({ error: 'Patient not found.' });
+
+    const updates = updatePatientProfile.parse(req.body);
+    const merged = { ...decrypt(patient.encrypted_profile), ...updates };
+
+    await db.query('UPDATE patients SET encrypted_profile=$1, updated_at=now() WHERE id=$2', [
+      encrypt(merged),
+      patient.id,
+    ]);
+    await audit(patient.id, req.user.sub, 'patient.profile_updated', {
+      fields: Object.keys(updates),
+    });
+
+    res.json({ patient: { id: patient.id, profile: merged, provenance: 'patient_provided' } });
+  } catch (e) {
+    next(e);
+  }
+});
+
+/** POST /api/patients/:patientId/summary — regenerate the review summary */
+router.post('/:patientId/summary', auth, allow('admin', 'clinician'), async (req, res, next) => {
+  try {
+    const patient = await canAccess(req.params.patientId, req.user);
+    if (!patient) return res.status(404).json({ error: 'Patient not found.' });
+
+    const obs = (
+      await db.query('SELECT encrypted_observation FROM observations WHERE patient_id=$1', [
+        patient.id,
+      ])
+    ).rows.map((x) => decrypt(x.encrypted_observation));
+
+    const summary = {
+      text: safeSummary(decrypt(patient.encrypted_profile), obs),
+      generatedAt: new Date().toISOString(),
+      disclaimer: 'Not a diagnosis or treatment recommendation.',
+    };
+
+    await db.query('INSERT INTO summaries(patient_id,encrypted_summary) VALUES($1,$2)', [
+      patient.id,
+      encrypt(summary),
+    ]);
+    await audit(patient.id, req.user.sub, 'summary.regenerated', {});
+
+    res.json({ summary });
   } catch (e) {
     next(e);
   }

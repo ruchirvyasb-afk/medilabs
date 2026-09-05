@@ -22,8 +22,14 @@ if (existsSync(dbPath)) {
 // Enable foreign keys
 db.run('PRAGMA foreign_keys = ON');
 
-/** Persist the in-memory database to disk */
+// db.export() implicitly ends any in-progress transaction (it snapshots via a
+// close/reopen internally), so persistence must be suspended for the
+// duration of an explicit BEGIN…COMMIT/ROLLBACK and flushed once it ends.
+let inExplicitTransaction = false;
+
+/** Persist the in-memory database to disk (no-op mid-transaction). */
 function save() {
+  if (inExplicitTransaction) return;
   const data = db.export();
   const buffer = Buffer.from(data);
   writeFileSync(dbPath, buffer);
@@ -167,18 +173,21 @@ async function connect() {
       if (upper === 'BEGIN') {
         db.run('BEGIN');
         inTransaction = true;
+        inExplicitTransaction = true;
         return { rows: [] };
       }
       if (upper === 'COMMIT') {
         db.run('COMMIT');
         inTransaction = false;
+        inExplicitTransaction = false;
         save();
         return { rows: [] };
       }
       if (upper === 'ROLLBACK') {
         if (inTransaction) {
-          db.run('ROLLBACK');
+          try { db.run('ROLLBACK'); } catch { /* already committed/rolled back */ }
           inTransaction = false;
+          inExplicitTransaction = false;
         }
         return { rows: [] };
       }
@@ -187,6 +196,8 @@ async function connect() {
     release() {
       if (inTransaction) {
         try { db.run('ROLLBACK'); } catch { /* already committed/rolled back */ }
+        inTransaction = false;
+        inExplicitTransaction = false;
       }
     },
   };

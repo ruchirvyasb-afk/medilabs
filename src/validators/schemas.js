@@ -36,6 +36,9 @@ export const createPatient = z.object({
   ownerUserId: z.string().uuid(),
 });
 
+/** Update patient profile request body (partial) */
+export const updatePatientProfile = profileSchema.partial();
+
 /** Process report request body */
 export const processReport = z.object({
   text: z.string().min(1).max(100000),

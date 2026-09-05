@@ -2,6 +2,6 @@
   "framework": null,
   "installCommand": "echo 'static site — no install needed'",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "https://REPLACE-WITH-YOUR-RENDER-URL.onrender.com/api/$1" }
+    { "source": "/api/(.*)", "destination": "https://medlens-api-j60m.onrender.com/api/$1" }
   ]
 }
